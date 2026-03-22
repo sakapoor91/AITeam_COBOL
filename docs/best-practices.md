@@ -162,3 +162,96 @@ Not every COBOL module needs full translation to Java. Some modules are better s
 - Complex inter-system dependencies make extraction impractical in the current phase
 
 The overlay approach uses API gateways and data transformation layers to present a modern REST interface while the underlying COBOL continues to execute. This is a pragmatic interim strategy, not a permanent solution.
+
+## 10. Structuring Skills for AI Agent Workflows
+
+Skills are the building blocks of agent behavior. A well-structured skill tells an agent exactly what to do, how to validate its work, and where to find detailed reference material when needed.
+
+**The SKILL.md Directory Convention:**
+
+Each skill lives in its own directory under `.claude/skills/` with a standard structure:
+
+```
+.claude/skills/<skill-name>/
+├── SKILL.md          # Workflow steps with YAML frontmatter (<500 lines)
+├── scripts/          # Executable validation and automation scripts
+└── references/       # Detailed reference material (mapping tables, rubrics, guides)
+```
+
+This structure implements **progressive disclosure**: the SKILL.md contains concise, actionable steps that an agent follows. When the agent needs deeper detail (type mapping tables, API endpoint lists, scoring rubrics), it reads from `references/`. When it needs to validate its work, it runs scripts from `scripts/`.
+
+**SKILL.md Frontmatter:**
+
+Every SKILL.md starts with YAML frontmatter that declares metadata:
+
+```yaml
+---
+name: code-transforming
+description: COBOL-to-Java translation protocol with validation loops
+agent: polecat
+stage: translate
+---
+```
+
+The `agent` field maps the skill to a Gas Town agent role. The `stage` field links it to the Five-Stage Loop (discover, design, translate, validate, deploy). This metadata enables the Mayor agent to assign skills to the right agents at the right pipeline stage.
+
+**Validation Loops:**
+
+Every skill should include a self-validation step. The agent runs a script from `scripts/` to check its own output before declaring the task complete. This catches common errors (missing Javadoc, float usage, incomplete RE reports) before the Witness agent review, reducing review cycles.
+
+**Agent-Skill Mapping:**
+
+| Agent | Primary Skills | Pipeline Stage |
+|-------|---------------|----------------|
+| Analyst | legacy-discovery, cobol-analysis | Discover |
+| Architect (human) | api-wrapping | Design |
+| Polecat | code-transforming, fineract-integration | Translate |
+| Witness | testing-legacy | Validate |
+| Deacon | monitoring-modernization, observability-setup | Deploy |
+| Mayor | All (orchestration) | All |
+
+Skills are not exclusive to one agent. The Mayor agent may invoke any skill during orchestration. The mapping above represents primary usage.
+
+## 11. MCP Server Integration for Legacy Modernization
+
+Model Context Protocol (MCP) servers extend agent capabilities by providing structured access to external systems. In a banking modernization context, security is the primary design constraint.
+
+**Security-First Approach:**
+
+MCP servers grant agents access to systems that contain production data, source code, and infrastructure controls. Every MCP integration must follow these principles:
+
+1. **Read-only first**: Start with read-only access. Only grant write access after validating the agent workflow in a controlled environment.
+2. **Least privilege**: Each MCP server should expose the minimum set of operations needed for its purpose.
+3. **Credential isolation**: MCP server credentials are passed via environment variables, never hardcoded. Use `${VARIABLE}` references in configuration.
+4. **Scope limits**: The filesystem MCP server is configured with explicit path allowlists (`./source`, `./output`), not broad access.
+
+**Server Inventory for This Project:**
+
+| Server | Purpose | Access Level |
+|--------|---------|-------------|
+| `github` | PR creation, branch management, code review | Read-write (required for agent workflow) |
+| `postgres` | Query Fineract schema during translation | Read-only (schema inspection only) |
+| `filesystem` | Access COBOL source and generated output | Read-only (source is never modified) |
+| `langfuse` | Trace ingestion and query | Read-write (TODO: pending MCP server availability) |
+
+**Configuration:**
+
+MCP servers are configured in `.claude/settings.json`. The configuration specifies the command to launch each server, its arguments, and environment variables:
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+**When to Add a New MCP Server:**
+
+Add an MCP server when agents repeatedly need structured access to an external system. The `mcp-building` skill provides step-by-step guidance for creating custom MCP servers, including a security checklist that must be completed before deployment. Do not add MCP servers speculatively — wait until an agent workflow demonstrates the need.
