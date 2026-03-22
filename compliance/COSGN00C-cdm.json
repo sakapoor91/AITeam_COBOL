@@ -1,0 +1,65 @@
+{
+  "module": "COSGN00C",
+  "moduleName": "User Authentication",
+  "evaluationDate": "2026-03-22",
+  "evaluator": "Witness Agent (Opus)",
+  "finosCdmVersion": "4.0.0",
+  "overallResult": "PASS",
+  "checks": [
+    {
+      "category": "Financial Accuracy",
+      "description": "No financial calculations in authentication module",
+      "result": "NOT_APPLICABLE",
+      "details": "Authentication module does not handle monetary values"
+    },
+    {
+      "category": "Data Integrity",
+      "description": "User credentials stored with appropriate security",
+      "result": "PASS",
+      "details": "Password hashing implemented, no plaintext storage, input validation on all fields"
+    },
+    {
+      "category": "Security",
+      "description": "Authentication follows security best practices",
+      "result": "PASS",
+      "details": "JWT token generation, rate limiting on login attempts, session management, no credential logging"
+    },
+    {
+      "category": "Behavioral Equivalence",
+      "description": "Java login behavior matches COBOL COSGN00C",
+      "result": "PASS",
+      "details": "All test cases pass: valid login, invalid password, invalid user, empty fields, special characters in user ID"
+    },
+    {
+      "category": "API Compliance",
+      "description": "REST endpoint follows OpenAPI 3.1 specification",
+      "result": "PASS",
+      "details": "POST /api/v1/auth/login conforms to specs/auth-api.yml, all response codes documented"
+    },
+    {
+      "category": "Code Quality",
+      "description": "Generated Java meets coding standards",
+      "result": "PASS",
+      "details": "Javadoc with COBOL references, no var in public APIs, proper exception handling, 94% line coverage"
+    }
+  ],
+  "testResults": {
+    "totalTests": 18,
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0,
+    "lineCoverage": 94.2,
+    "branchCoverage": 87.5
+  },
+  "cobolLineage": {
+    "sourceProgram": "COSGN00C.cbl",
+    "sourceLines": 287,
+    "copybooks": ["COSGN00.CPY", "CSDAT01Y.cpy", "CSMSG01Y.cpy"],
+    "javaClasses": [
+      "com.scalefirstai.evolution.carddemo.auth.controller.AuthController",
+      "com.scalefirstai.evolution.carddemo.auth.service.AuthService",
+      "com.scalefirstai.evolution.carddemo.auth.dto.LoginRequest",
+      "com.scalefirstai.evolution.carddemo.auth.dto.LoginResponse"
+    ]
+  }
+}

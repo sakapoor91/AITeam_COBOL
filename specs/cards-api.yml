@@ -1,0 +1,218 @@
+openapi: 3.1.0
+info:
+  title: CardDemo Credit Card API
+  description: |
+    Modernized credit card management endpoints for the AWS CardDemo application.
+    Converted from COBOL programs COCRDLIC (listing) and COCRDUPC (update).
+  version: 0.1.0
+  contact:
+    name: ScaleFirst AI
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: http://localhost:8090
+    description: Local development server
+
+paths:
+  /api/v1/cards:
+    get:
+      operationId: listCards
+      summary: List credit cards for an account
+      description: |
+        Retrieves a paginated list of credit cards filtered by account ID.
+        Original COBOL: COCRDLIC.cbl — card listing with forward/backward paging.
+      tags:
+        - Credit Cards
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 11
+          description: "Account ID filter (COBOL: ACCT-ID, PIC 9(11))"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number for pagination
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 7
+            minimum: 1
+            maximum: 50
+          description: "Items per page (default 7, matching COBOL screen rows)"
+      responses:
+        '200':
+          description: List of credit cards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardListResponse'
+        '400':
+          description: Invalid account ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /api/v1/cards/{cardNumber}:
+    get:
+      operationId: getCard
+      summary: Get credit card details
+      description: |
+        Retrieves detailed information for a specific credit card.
+        Original COBOL: COCRDUPC.cbl — card detail view.
+      tags:
+        - Credit Cards
+      parameters:
+        - name: cardNumber
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 16
+          description: "Credit card number (COBOL: CARD-NUM, PIC 9(16))"
+      responses:
+        '200':
+          description: Card details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditCard'
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    put:
+      operationId: updateCard
+      summary: Update credit card details
+      description: |
+        Updates credit card information (name, status, expiry).
+        Original COBOL: COCRDUPC.cbl — PROCESS-PF05-UPDATE paragraph.
+        Business rules: validates expiry date, status transitions, name format.
+      tags:
+        - Credit Cards
+      parameters:
+        - name: cardNumber
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 16
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardUpdateRequest'
+      responses:
+        '200':
+          description: Card updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditCard'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CreditCard:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+          description: "16-digit card number (COBOL: CARD-NUM, PIC 9(16))"
+        accountId:
+          type: string
+          description: "Associated account (COBOL: CARD-ACCT-ID, PIC 9(11))"
+        cardholderName:
+          type: string
+          description: "Name on card (COBOL: CARD-CVV-CD, cross-ref with CUST file)"
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, CLOSED, LOST, STOLEN]
+          description: "Card status (COBOL: CARD-ACTIVE-STATUS, PIC X(1))"
+        expiryDate:
+          type: string
+          format: date
+          description: "Expiration date (COBOL: CARD-EXPIRAION-DATE, PIC X(10))"
+        creditLimit:
+          type: string
+          description: "Credit limit as decimal string (COBOL: PIC 9(7)V99)"
+        currentBalance:
+          type: string
+          description: "Current balance as decimal string (COBOL: PIC 9(7)V99)"
+        availableCredit:
+          type: string
+          description: "Available credit (limit - balance)"
+
+    CardListResponse:
+      type: object
+      properties:
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditCard'
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        totalItems:
+          type: integer
+
+    CardUpdateRequest:
+      type: object
+      properties:
+        cardholderName:
+          type: string
+          maxLength: 50
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, CLOSED]
+        expiryDate:
+          type: string
+          format: date
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time

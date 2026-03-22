@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build output
+target/
+.next/
+out/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Environment
+.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Observability data (generated at runtime)
+metrics/prometheus-data/
+metrics/grafana-data/
+metrics/langfuse-data/
+
+# Docker
+docker-compose.override.yml
+
+# Source repos (cloned at setup time)
+source/aws-carddemo/
+tools/
+
+# Coverage reports
+coverage/
+*.lcov

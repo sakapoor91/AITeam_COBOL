@@ -1,0 +1,169 @@
+openapi: 3.1.0
+info:
+  title: CardDemo Account API
+  description: |
+    Modernized account management endpoint for the AWS CardDemo application.
+    Converted from COBOL program COACTUPC (account update).
+  version: 0.1.0
+  contact:
+    name: ScaleFirst AI
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: http://localhost:8090
+    description: Local development server
+
+paths:
+  /api/v1/accounts/{accountId}:
+    get:
+      operationId: getAccount
+      summary: Get account details
+      description: |
+        Retrieves account information including balances and credit limits.
+        Original COBOL: COACTUPC.cbl — account view mode.
+      tags:
+        - Accounts
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 11
+          description: "Account ID (COBOL: ACCT-ID, PIC 9(11))"
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+    put:
+      operationId: updateAccount
+      summary: Update account details
+      description: |
+        Updates account information (credit limit, status, personal details).
+        Original COBOL: COACTUPC.cbl — PROCESS-PF05-UPDATE paragraph.
+        Business rules: credit limit validation, status transition rules.
+      tags:
+        - Accounts
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 11
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdateRequest'
+      responses:
+        '200':
+          description: Account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Account:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: "Account identifier (COBOL: ACCT-ID, PIC 9(11))"
+        accountStatus:
+          type: string
+          enum: [ACTIVE, INACTIVE, CLOSED]
+          description: "Account status (COBOL: ACCT-ACTIVE-STATUS, PIC X(1))"
+        currentBalance:
+          type: string
+          description: "Current balance as decimal string (COBOL: ACCT-CURR-BAL, PIC S9(10)V99)"
+        creditLimit:
+          type: string
+          description: "Credit limit as decimal string (COBOL: ACCT-CREDIT-LIMIT, PIC S9(10)V99)"
+        cashCreditLimit:
+          type: string
+          description: "Cash credit limit (COBOL: ACCT-CASH-CREDIT-LIMIT, PIC S9(10)V99)"
+        openDate:
+          type: string
+          format: date
+          description: "Account open date (COBOL: ACCT-OPEN-DATE, PIC X(10))"
+        expirationDate:
+          type: string
+          format: date
+          description: "Expiration date (COBOL: ACCT-EXPIRAION-DATE, PIC X(10))"
+        reissueDate:
+          type: string
+          format: date
+          description: "Last reissue date"
+        currentCycleCredit:
+          type: string
+          description: "Credits in current cycle (COBOL: PIC S9(10)V99)"
+        currentCycleDebit:
+          type: string
+          description: "Debits in current cycle (COBOL: PIC S9(10)V99)"
+        groupId:
+          type: string
+          description: "Account group (COBOL: ACCT-GROUP-ID, PIC X(10))"
+
+    AccountUpdateRequest:
+      type: object
+      properties:
+        creditLimit:
+          type: string
+          description: "New credit limit (must be positive, max 9999999999.99)"
+        cashCreditLimit:
+          type: string
+          description: "New cash credit limit"
+        accountStatus:
+          type: string
+          enum: [ACTIVE, INACTIVE, CLOSED]
+        groupId:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
