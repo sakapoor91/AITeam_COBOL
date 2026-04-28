@@ -39,10 +39,7 @@ coverage/
 *.lcov
 
 # Generated binary artifacts (regenerate with: python output/business-docs/tools/generate_all.py)
-output/business-docs/**/*.docx
 output/business-docs/**/*-flow.png
-output/validation/**/*.docx
-output/MASTER-CARDDEMO.docx
 ~$*
 
 # Python bytecode
