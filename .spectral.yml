@@ -1,9 +1,0 @@
-extends:
-  - spectral:oas
-
-rules:
-  operation-operationId: error
-  operation-description: warn
-  info-contact: warn
-  info-description: warn
-  oas3-schema: error
