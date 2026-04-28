@@ -4,8 +4,8 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CI](https://github.com/scalefirstai/EvolutionAI/actions/workflows/ci.yml/badge.svg)](https://github.com/scalefirstai/EvolutionAI/actions/workflows/ci.yml)
-[![Java](https://img.shields.io/badge/Java-17%2B-orange.svg)](output/java/)
-[![Quarkus](https://img.shields.io/badge/Quarkus-3.x-blue.svg)](output/java/)
+[![Docs](https://img.shields.io/badge/Docs-44%2F44-brightgreen.svg)](output/business-docs/)
+[![Validated](https://img.shields.io/badge/Validated-44%2F44-brightgreen.svg)](output/validation/)
 
 ---
 
@@ -122,31 +122,84 @@ Every COBOL module flows through a repeatable five-stage pipeline:
 
 ---
 
-## Demo Conversion: CardDemo Modules
+## Documentation: All 44 Programs
 
-| Module | Business Function | Target API | Status |
-|--------|-------------------|------------|--------|
-| COSGN00C | User authentication / login | `/api/v1/auth/login` | Converted |
-| COCRDLIC | Credit card listing | `/api/v1/cards` | Converted |
-| COACTUPC | Account update (CRUD) | `/api/v1/accounts/{id}` | Converted |
-| COCRDUPC | Credit card update | `/api/v1/cards/{id}` | Converted |
-| COTRN00C | Transaction processing | `/api/v1/transactions` | Converted |
-| CBTRN01C | Batch transaction processing | Scheduled job | Converted |
-| CBACT01C | Batch account processing | Scheduled job | Converted |
+Every COBOL program has been fully reverse-engineered into a **business documentation** layer — plain English deep-dives that serve as the single source of truth for translation.
+
+Each document in [`output/business-docs/`](output/business-docs/) includes: inline copybook field tables (with PIC clause and byte count), exact paragraph names and line numbers, 88-level value decodes, COMP-3 migration flags, latent bug catalogue, and a Mermaid execution flow diagram.
+
+Every document has been through a **two-phase validation pipeline**: Phase 1 (mechanical — structure, line-number bounds, identifier existence, PIC byte math) and Phase 2 (LLM-as-judge — semantic accuracy across program flow, error handling, migration notes, copybook fields, and external calls). Validation reports live in [`output/validation/`](output/validation/).
+
+| Program | Domain | Business Function |
+|---------|--------|-----------------|
+| CBACT01C | Account Batch | Print all account records to report |
+| CBACT02C | Account Batch | Cross-reference accounts to cards |
+| CBACT03C | Account Batch | Update account balances from transaction summary |
+| CBACT04C | Account Batch | Close over-limit accounts |
+| CBCUS01C | Customer Batch | Print all customer records to report |
+| CBEXPORT | Data Exchange | Export account/card data to flat file |
+| CBIMPORT | Data Exchange | Import and validate external transactions |
+| CBPAUP0C | Statement | Pause utility between statement steps |
+| CBSTM03A | Statement | Generate monthly statement detail lines |
+| CBSTM03B | Statement | Write formatted statement to print file |
+| CBTRN01C | Transaction Batch | Validate and post daily transactions |
+| CBTRN02C | Transaction Batch | Transaction category summary report |
+| CBTRN03C | Transaction Batch | Reject failing transactions |
+| COACCT01 | Account Online | Account inquiry screen |
+| COACTUPC | Account Online | Account update (limit, status, expiry) |
+| COACTVWC | Account Online | Account view (read-only) |
+| COADM01C | Admin | System administration menu |
+| COBIL00C | Billing | Billing inquiry and payment entry |
+| COBSWAIT | Utility | Timed wait between batch steps |
+| COBTUPDT | Utility | Update control table record |
+| COCRDLIC | Cards | Credit card list for an account |
+| COCRDSLC | Cards | Credit card selection |
+| COCRDUPC | Cards | Credit card update |
+| CODATE01 | Utility | Date format conversion |
+| COMEN01C | Menu | Main application menu |
+| COPAUA0C | Pause | Pause screen A |
+| COPAUS0C | Pause | Short pause between CICS transactions |
+| COPAUS1C | Pause | Extended pause with status message |
+| COPAUS2C | Pause | Pause with error detail |
+| CORPT00C | Reporting | Report menu — batch report request |
+| COSGN00C | Sign-On | User login — credential validation |
+| COTRN00C | Transaction Online | Transaction list for an account |
+| COTRN01C | Transaction Online | Post new transaction from screen |
+| COTRN02C | Transaction Online | View single transaction detail |
+| COTRTLIC | Transaction Online | Transaction type list |
+| COTRTUPC | Transaction Online | Amend pending transaction |
+| COUSR00C | User Mgmt | User list |
+| COUSR01C | User Mgmt | Add user |
+| COUSR02C | User Mgmt | Update user |
+| COUSR03C | User Mgmt | Delete user |
+| CSUTLDTC | Utility | Date validation/conversion subroutine |
+| DBUNLDGS | DB Unload | Unload VSAM to sequential flat file |
+| PAUDBLOD | Audit | Load pause audit records to DB |
+| PAUDBUNL | Audit | Export pause audit records |
+
+### Conversion Progress
+
+| Artifact | Count | Status |
+|----------|-------|--------|
+| COBOL source programs | 44 | Complete (read-only reference) |
+| BIZ-*.md business docs | 44 / 44 | **Complete** — see [`output/business-docs/`](output/business-docs/) |
+| Validation reports (Phase 1 + Phase 2) | 44 / 44 | **Complete** — see [`output/validation/`](output/validation/) |
+| RE-*.md technical reports | 7 / 44 | In progress |
+| Java / Quarkus translation | 7 / 44 | In progress |
+| OpenAPI specs | 4 / 44 | In progress |
+| Witness-approved | 7 / 44 | In progress |
 
 ### Browse the Output
 
-Each converted module includes:
-
 | Artifact | Location | Description |
 |----------|----------|-------------|
-| COBOL Source | [`source/cobol/`](source/cobol/) | Original COBOL program |
-| RE Report | [`output/docs/RE-*.md`](output/docs/) | Reverse engineering analysis |
-| Java Code | [`output/java/`](output/java/) | Generated Java/Quarkus implementation |
-| Tests | [`output/tests/`](output/tests/) | Unit and equivalence test suites |
-| OpenAPI Spec | [`specs/`](specs/) | REST API specification |
-| Review Verdict | [`output/docs/REVIEW-*.md`](output/docs/) | Witness quality gate decision |
-| Compliance | [`compliance/`](compliance/) | FINOS CDM validation report |
+| COBOL Source | [`source/cobol/`](source/cobol/) | 44 COBOL programs + 62 copybooks (read-only) |
+| **Master Document** | [`output/MASTER-CARDDEMO.md`](output/MASTER-CARDDEMO.md) | **Single-file reference: architecture, all domains, flows, copybook catalog, program table, risk register** |
+| Business Docs | [`output/business-docs/`](output/business-docs/) | Plain-English deep-dive docs for all 44 programs |
+| Validation Reports | [`output/validation/`](output/validation/) | Phase 1 + Phase 2 accuracy reports for all 44 programs |
+| OpenAPI Specs | [`specs/`](specs/) | REST API specifications (accounts, cards, transactions, auth) |
+| Compliance | [`compliance/`](compliance/) | FINOS CDM validation reports |
+| Methodology | [`docs/`](docs/) | Executive summary, best practices, architecture decisions |
 
 ---
 
@@ -207,21 +260,52 @@ The metrics dashboard provides four stakeholder views with real-time project vis
 
 ```
 EvolutionAI/
-├── .claude/              # AI agent definitions and skills
-│   ├── agents/           # 6 specialized agent prompts
-│   └── skills/           # Domain knowledge (COBOL, Fineract, observability)
-├── source/cobol/         # Original COBOL source from CardDemo
+├── .claude/
+│   ├── CLAUDE.md              # Project brain — loaded into every Claude session
+│   ├── agents/
+│   │   ├── documenter.md      # Generates BIZ-*.md from COBOL source (Sonnet)
+│   │   └── validator.md       # LLM-as-judge: Phase 2 semantic accuracy check (Opus)
+│   ├── commands/              # Slash commands
+│   │   ├── document.md        # /document PROGNAME — generate BIZ-*.md + DOCX + PNG
+│   │   ├── document-all.md    # /document-all — generate docs for all missing programs
+│   │   ├── convert.md         # /convert PROGNAME — re-run MD→DOCX converter
+│   │   ├── check-doc.md       # /check-doc PROGNAME — quick section presence check
+│   │   └── validate-doc.md    # /validate-doc PROGNAME — full two-phase validation
+│   ├── hooks/
+│   │   └── check-doc-sections.sh  # Pre-commit: blocks BIZ-*.md missing required sections
+│   ├── rules/
+│   │   └── documentation-depth.md # 10 non-negotiable documentation quality rules
+│   └── settings.json          # MCP filesystem server configuration
+│
+├── source/cobol/              # Original COBOL source — read-only reference
+│   ├── *.cbl / *.CBL          # 44 COBOL programs
+│   └── *.cpy / *.CPY          # 84 copybooks
+│
 ├── output/
-│   ├── docs/             # RE reports and witness reviews
-│   ├── java/             # Generated Java/Quarkus code (buildable)
-│   └── tests/            # Generated test suites
-├── specs/                # OpenAPI 3.1 specifications
-├── compliance/           # FINOS CDM validation reports
-├── dashboard/            # Next.js metrics dashboard
-├── metrics/              # Prometheus, Grafana, metrics exporter
-├── docs/                 # Methodology, best practices, ADRs
-├── scripts/              # Setup and demo scripts
-└── docker-compose.yml    # One-command full stack startup
+│   ├── MASTER-CARDDEMO.md     # Single master reference: architecture, all programs, copybook catalog, risk register
+│   ├── MASTER-CARDDEMO.docx   # Word version (generated, gitignored)
+│   ├── business-docs/         # Deep business docs — all 44 programs
+│   │   ├── README.md          # Program inventory and generation guide
+│   │   ├── DOCUMENTATION-STANDARD.md  # Depth rules every BIZ-*.md must follow
+│   │   ├── TEMPLATE.md        # Blank fill-in template for new programs
+│   │   ├── BUSINESS-OVERVIEW.md       # Master system overview (8 domains)
+│   │   ├── tools/             # MD→DOCX converter, batch generator, Phase 1 validator
+│   │   └── PROGNAME/          # One folder per program (44 total)
+│   │       ├── BIZ-PROGNAME.md        # Deep-dive business doc (committed)
+│   │       ├── BIZ-PROGNAME.docx      # Word version (generated, gitignored)
+│   │       └── BIZ-PROGNAME-flow.png  # Mermaid diagram (generated, gitignored)
+│   └── validation/            # Two-phase validation reports — all 44 programs
+│       └── PROGNAME/
+│           ├── PROGNAME-validation.md   # Phase 1 + Phase 2 combined report (committed)
+│           └── PROGNAME-validation.docx # Word version (generated, gitignored)
+│
+├── specs/                     # OpenAPI 3.1 specifications (accounts, cards, transactions, auth)
+├── compliance/                # FINOS CDM validation reports
+├── dashboard/                 # Executive visibility dashboard
+├── metrics/                   # Prometheus + Grafana configuration
+├── docs/                      # Methodology guides, best practices, ADRs
+├── scripts/                   # Setup and demo scripts
+└── docker-compose.yml         # One-command full stack startup
 ```
 
 ---
@@ -240,4 +324,4 @@ This project is licensed under the Apache License 2.0 — see [LICENSE](LICENSE)
 - [Apache Fineract](https://fineract.apache.org/) for the target banking platform
 - [Azure Legacy Modernization Agents](https://github.com/Azure/legacy-modernization-agents) for the Semantic Kernel migration engine reference
 - [FINOS](https://www.finos.org/) for the Common Domain Model
-- The Gas Town pattern for multi-agent orchestration architecture
+- [Anthropic Claude](https://www.anthropic.com/) for the AI models powering the documentation and validation pipeline

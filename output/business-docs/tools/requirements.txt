@@ -1,0 +1,9 @@
+# Python dependencies for BIZ-*.md → DOCX conversion
+python-docx>=1.1.0
+
+# External tool dependency (NOT a Python package — install separately):
+#   npm install -g @mermaid-js/mermaid-cli
+# Verify with: mmdc --version
+# Required for rendering Appendix E Mermaid diagrams to PNG.
+# If mmdc is not installed the converter falls back to a text reference callout
+# in the DOCX and prints a warning; the .md file is unaffected.

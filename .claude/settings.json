@@ -1,19 +1,13 @@
 {
   "mcpServers": {
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-      }
-    },
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "${FINERACT_DB_URL:-postgresql://localhost:5432/fineract}"]
-    },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./source", "./output"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "./source/cobol",
+        "./business-docs"
+      ]
     }
   }
 }

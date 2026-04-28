@@ -33,8 +33,19 @@ docker-compose.override.yml
 
 # Source repos (cloned at setup time)
 source/aws-carddemo/
-tools/
 
 # Coverage reports
 coverage/
 *.lcov
+
+# Generated binary artifacts (regenerate with: python output/business-docs/tools/generate_all.py)
+output/business-docs/**/*.docx
+output/business-docs/**/*-flow.png
+output/validation/**/*.docx
+output/MASTER-CARDDEMO.docx
+~$*
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo

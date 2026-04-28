@@ -1,80 +1,164 @@
-# Legacy Banking Modernization — Agentic Architecture Project
+# CardDemo COBOL Documentation Pipeline
 
-## Project Identity
-This is a multi-agent COBOL-to-modern-stack banking modernization project.
-We are converting AWS CardDemo (COBOL credit card management) into Apache Fineract-compatible Java/Quarkus services using AI agent orchestration.
+## What This Project Does
 
-## Architecture Stack
-- **Source codebase**: AWS CardDemo (COBOL, CICS, VSAM)
-- **Migration engine**: Azure Legacy-Modernization-Agents (Semantic Kernel)
-- **Orchestration**: Gas Town patterns (Mayor/Polecat/Witness/Refinery)
-- **Target platform**: Apache Fineract APIs (Java/Spring Boot)
-- **Compliance**: FINOS CDM + Open-Source Regulatory Reporting
-- **Observability**: Langfuse (self-hosted) + Grafana + Prometheus
-- **Agent coordination**: Claude Code Agent Teams + subagents
+Reads AWS CardDemo COBOL source files and produces deep, field-accurate business documentation for every program — plain English documents that a Java developer can trust instead of re-reading COBOL.
 
-## Tech Constraints
-- Java 17+ for all generated output code
-- Quarkus framework preferred; Spring Boot acceptable
-- PostgreSQL for persistence (no Oracle dependencies)
-- OpenAPI 3.1 specs required for every new service endpoint
-- All COBOL business rules must be documented BEFORE translation
-- Git worktrees for agent isolation (one branch per agent)
-- Every agent action logged to Langfuse via OpenTelemetry
+**Input**: `source/cobol/` — 44 COBOL programs + 62 copybooks  
+**Output**:
+- `output/business-docs/` — one subfolder per program, each containing `.md`, `.docx`, and `-flow.png`
+- `output/validation/` — one subfolder per program with Phase 1 + Phase 2 validation reports
+- `output/MASTER-CARDDEMO.md` — single master reference document for the entire codebase
 
-## Coding Standards
-- No code generation without a SKILL.md or spec reference
-- All generated Java must include Javadoc with COBOL source reference
-- Test coverage minimum: 90% line coverage, 80% branch coverage
-- Integration tests must validate behavioral equivalence against COBOL
-- Use record types for DTOs, sealed interfaces for domain types
-- No `var` in public API signatures
-- All monetary amounts use `BigDecimal`, never `double` or `float`
+---
 
-## Forbidden Patterns
-- NEVER generate code that uses `float` or `double` for currency
-- NEVER skip the reverse-engineering step before translation
-- NEVER merge agent output without Witness agent approval
-- NEVER commit directly to `main` — all work via feature branches
-- NEVER use Spring WebFlux (stick to servlet model for banking)
-- NEVER auto-approve security-sensitive changes (auth, crypto, PII)
+## Pipeline in Three Steps
 
-## Agent Roles (Gas Town Mapping)
-| Role | Agent | Responsibility |
-|------|-------|----------------|
-| Mayor | `@agent-mayor` | Orchestrates work, decomposes tasks, manages dependencies |
-| Polecat | `@agent-polecat-*` | Executes translation/refactoring tasks in parallel |
-| Witness | `@agent-witness` | Reviews all output for quality, compliance, security |
-| Refinery | `@agent-refinery` | Manages merge queue, resolves conflicts |
-| Deacon | `@agent-deacon` | Health monitoring, stale work detection, cost tracking |
-| Analyst | `@agent-analyst` | COBOL analysis, dependency mapping, business rule extraction |
+```
+1. READ         source/cobol/PROGNAME.cbl
+                source/cobol/*.cpy  (all COPYed copybooks)
 
-## Workflow: Five-Stage Loop (per module)
-1. **Discover** → analyst agent maps COBOL module structure + dependencies
-2. **Design** → human architect reviews, makes target architecture decisions
-3. **Translate** → polecat agents convert COBOL → Java in parallel
-4. **Validate** → witness agent runs equivalence tests + compliance checks
-5. **Deploy** → refinery merges, deacon monitors post-deploy metrics
+2. GENERATE     output/business-docs/PROGNAME/BIZ-PROGNAME.md
+                  ↳ Section 1: Purpose
+                  ↳ Section 2: Program Flow (exact paragraph names + line numbers)
+                  ↳ Section 3: Error Handling
+                  ↳ Section 4: Migration Notes
+                  ↳ Appendix A: Files
+                  ↳ Appendix B: Copybooks + External Programs (all fields inline)
+                  ↳ Appendix C: Hardcoded Literals
+                  ↳ Appendix D: Internal Working Fields
+                  ↳ Appendix E: Mermaid flowchart TD
 
-## Observability Requirements
-- Every LLM call traced in Langfuse with: model, tokens, latency, cost
-- Every agent task tracked as a Langfuse session with parent trace
-- Prometheus metrics exported: `agent_task_duration_seconds`, `agent_tokens_total`, `cobol_lines_analyzed_total`, `translation_equivalence_pass_rate`
-- Grafana dashboards: Executive, Architecture, Operations, Compliance views
-- Alert on: token spend > $50/hour, equivalence test failure, agent idle > 30min
+3. CONVERT      output/business-docs/PROGNAME/BIZ-PROGNAME.docx
+                output/business-docs/PROGNAME/BIZ-PROGNAME-flow.png
+                  ↳ python output/business-docs/tools/_md_to_docx.py
+                  ↳ mmdc (mermaid-cli) for PNG — npm install -g @mermaid-js/mermaid-cli
 
-## MCP Servers (configure in settings)
-- `github` — PR creation, branch management, code review
-- `postgres` — query Fineract schema during translation
-- `langfuse` — trace ingestion and query (when MCP server available)
+4. VALIDATE     output/validation/PROGNAME/PROGNAME-validation.md
+                output/validation/PROGNAME/PROGNAME-validation.docx
+                  ↳ Phase 1: python output/business-docs/tools/validate_doc.py PROGNAME --report
+                  ↳ Phase 2: validator agent (LLM-as-judge)
 
-## Key File Locations
-- `source/` — COBOL source files from CardDemo
-- `output/java/` — Generated Java/Quarkus output
-- `output/tests/` — Generated test suites
-- `output/docs/` — Reverse-engineering documentation
-- `specs/` — OpenAPI specs for new endpoints
-- `compliance/` — FINOS CDM validation reports
-- `metrics/` — Observability configuration (Langfuse, Grafana, Prometheus)
-- `.claude/agents/` — Subagent definitions
-- `.claude/skills/` — Project-specific skills
+5. MASTER DOC   output/MASTER-CARDDEMO.md
+                output/MASTER-CARDDEMO.docx
+                  ↳ Synthesises all BIZ-*.md + validation reports into one reference document
+                  ↳ Run /master-doc to regenerate after adding or updating programs
+```
+
+---
+
+## Key Paths
+
+| Path | Contents |
+|------|---------|
+| `source/cobol/` | COBOL source programs and copybooks — **read-only, never modify** |
+| `output/MASTER-CARDDEMO.md` | **Master reference document** — architecture, all programs, copybook catalog, risk register |
+| `output/business-docs/` | Per-program business documentation |
+| `output/validation/` | Phase 1 + Phase 2 validation reports (one subfolder per program) |
+| `output/business-docs/DOCUMENTATION-STANDARD.md` | The complete depth rules every BIZ-*.md must follow |
+| `output/business-docs/TEMPLATE.md` | Blank fill-in template |
+| `output/business-docs/CBACT01C/BIZ-CBACT01C.md` | **Canonical reference implementation** |
+| `output/business-docs/tools/_md_to_docx.py` | Markdown → Word converter |
+| `output/business-docs/tools/generate_all.py` | Batch converter (all programs) |
+| `output/business-docs/tools/validate_doc.py` | Phase 1 mechanical validator |
+| `output/business-docs/tools/requirements.txt` | Python dependencies |
+
+---
+
+## Documentation Depth Rules (summary — full rules in DOCUMENTATION-STANDARD.md)
+
+- **No raw COBOL statements** — describe every action in plain English; field/paragraph names in `backticks` only
+- **Resolve every COPY** — read the `.cpy` file and list all fields inline with PIC and byte count; never say "see copybook"
+- **Decode 88-level values** — show what each literal code means
+- **Call out unused fields** — name every copybook field never referenced by the program
+- **Flag COMP-3 fields** — mark with "(COMP-3 — use BigDecimal in Java)"
+- **Note typos** — preserve exact misspelled field name, add "(typo)"
+- **Cite line numbers** — every paragraph reference and migration note must include a source line number
+- **Latent bugs** — list everything in Migration Notes: unhandled status codes, stale data, template artifacts, security issues
+
+---
+
+## Slash Commands
+
+| Command | What it does |
+|---------|-------------|
+| `/document PROGNAME` | Generate BIZ-*.md + DOCX + PNG for one program |
+| `/document-all` | Generate docs for every program missing a BIZ-*.md |
+| `/convert PROGNAME` | Re-run converter on an existing BIZ-*.md |
+| `/check-doc PROGNAME` | Verify a BIZ-*.md has all required sections (quick) |
+| `/validate-doc PROGNAME` | Full two-phase validation: mechanical + LLM judge |
+| `/master-doc` | Regenerate MASTER-CARDDEMO.md + DOCX from all BIZ-*.md and validation reports |
+
+---
+
+## Validation Pipeline
+
+Every BIZ-*.md goes through two phases before being trusted as a migration reference:
+
+```
+Phase 1 — Mechanical (python tools/validate_doc.py PROGNAME --report)
+  ✓ All 12 sections present
+  ✓ No forbidden COBOL code blocks
+  ✓ Every line number within source bounds
+  ✓ Every backtick identifier exists in source or copybooks
+  ✓ All COPYed copybooks documented in Appendix B
+  ✓ DDnames match SELECT/ASSIGN statements
+  ✓ PIC byte counts mathematically consistent
+  ✓ Migration notes cite line numbers
+  ✓ Mermaid diagram has classDef styles
+
+Phase 2 — LLM Judge (validator agent)
+  ✓ S1: Program flow matches actual PERFORM structure
+  ✓ S2: Error handling descriptions match source DISPLAY strings
+  ✓ S3: Every migration note supported by source evidence
+  ✓ S4: Copybook field tables match actual .cpy files
+  ✓ S5: External program call details accurate
+  ✓ S6: No significant coverage omissions
+```
+
+Results are written to `output/validation/PROGNAME/PROGNAME-validation.md` and converted to `PROGNAME-validation.docx`.
+
+### Validation Verdicts
+
+| Phase 1 | Phase 2 | Document status |
+|---------|---------|-----------------|
+| PASS | PASS | Ready to use as migration reference |
+| PASS | CONDITIONAL | Usable with noted caveats |
+| PASS | FAIL | Semantic errors — document needs revision |
+| FAIL | — | Structural errors — fix Phase 1 issues first |
+
+---
+
+## Agents
+
+| Agent | When to use |
+|-------|-------------|
+| `documenter` | Generating or fixing a BIZ-*.md — reads source, writes full doc |
+| `validator` | Phase 2 LLM-as-judge — reads source + doc side-by-side, gives PASS/FAIL/CONDITIONAL verdict |
+
+> After adding or updating programs, run `/master-doc` to keep `output/MASTER-CARDDEMO.md` in sync.
+
+---
+
+## Current Status (as of April 2026)
+
+All 44 programs have BIZ-*.md, .docx, -flow.png, and two-phase validation reports:
+
+| Batch | Programs |
+|-------|---------|
+| Account batch | CBACT01C · CBACT02C · CBACT03C · CBACT04C |
+| Customer / Data | CBCUS01C · CBEXPORT · CBIMPORT |
+| Statements | CBPAUP0C · CBSTM03A · CBSTM03B |
+| Transaction batch | CBTRN01C · CBTRN02C · CBTRN03C |
+| Account online | COACCT01 · COACTUPC · COACTVWC |
+| Admin / Billing | COADM01C · COBIL00C |
+| Utilities | COBSWAIT · COBTUPDT · CODATE01 · CSUTLDTC |
+| Cards online | COCRDLIC · COCRDSLC · COCRDUPC |
+| Menu / Sign-on | COMEN01C · COSGN00C |
+| Pause screens | COPAUA0C · COPAUS0C · COPAUS1C · COPAUS2C |
+| Reporting | CORPT00C |
+| Transactions online | COTRN00C · COTRN01C · COTRN02C · COTRTLIC · COTRTUPC |
+| User management | COUSR00C · COUSR01C · COUSR02C · COUSR03C |
+| DB / Audit | DBUNLDGS · PAUDBLOD · PAUDBUNL |
+
+To add a new program: place its `.cbl` in `source/cobol/`, run `/document PROGNAME`, then `/validate-doc PROGNAME`, then `/master-doc` to update the master reference.
