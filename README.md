@@ -1,9 +1,9 @@
-# EvolutionAI
+# AITeam_COBOL
 
 **AI Agentic Architecture for Legacy Banking Modernization**
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![CI](https://github.com/scalefirstai/EvolutionAI/actions/workflows/ci.yml/badge.svg)](https://github.com/scalefirstai/EvolutionAI/actions/workflows/ci.yml)
+[![CI](https://github.com/sakapoor91/AITeam_COBOL/actions/workflows/ci.yml/badge.svg)](https://github.com/sakapoor91/AITeam_COBOL/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/Docs-44%2F44-brightgreen.svg)](output/business-docs/)
 [![Validated](https://img.shields.io/badge/Validated-44%2F44-brightgreen.svg)](output/validation/)
 
@@ -11,7 +11,7 @@
 
 ## What This Project Demonstrates
 
-EvolutionAI is a production-grade reference implementation showing how **multi-agent AI orchestration** can modernize legacy COBOL banking systems into cloud-native Java/Quarkus services — with full observability, compliance verification, and executive visibility.
+AITeam_COBOL is a production-grade reference implementation showing how **multi-agent AI orchestration** can modernize legacy COBOL banking systems into cloud-native Java/Quarkus services — with full observability, compliance verification, and executive visibility.
 
 - **Source**: [AWS CardDemo](https://github.com/aws-samples/aws-mainframe-modernization-carddemo) — a COBOL/CICS credit card management application
 - **Target**: [Apache Fineract](https://fineract.apache.org/)-compatible REST APIs built on Java 17 / Quarkus
@@ -34,8 +34,8 @@ EvolutionAI is a production-grade reference implementation showing how **multi-a
 
 ```bash
 # Clone the repository
-git clone https://github.com/scalefirstai/EvolutionAI.git
-cd EvolutionAI
+git clone https://github.com/sakapoor91/AITeam_COBOL.git
+cd AITeam_COBOL
 
 # Set up COBOL source (clones AWS CardDemo)
 ./scripts/setup.sh
@@ -259,7 +259,7 @@ The metrics dashboard provides four stakeholder views with real-time project vis
 ## Project Structure
 
 ```
-EvolutionAI/
+AITeam_COBOL/
 ├── .claude/
 │   ├── CLAUDE.md              # Project brain — loaded into every Claude session
 │   ├── agents/
