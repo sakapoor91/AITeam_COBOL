@@ -8,9 +8,20 @@ This directory contains COBOL source files extracted from the AWS CardDemo appli
 - **License**: MIT-0 (MIT No Attribution)
 - **Description**: A credit card management application originally designed for IBM z/OS mainframes using COBOL, CICS, and VSAM.
 
+## Getting the source
+
+The COBOL files are not committed to git. Clone them manually:
+
+```bash
+git clone https://github.com/aws-samples/aws-mainframe-modernization-carddemo.git /tmp/carddemo
+cp /tmp/carddemo/app/cbl/*.cbl source/cobol/
+cp /tmp/carddemo/app/cbl/*.cpy source/cobol/
+cp /tmp/carddemo/app/cpy/*.cpy source/cobol/
+```
+
 ## Contents
 
-- `*.cbl` -- COBOL program source files
-- `*.cpy` -- COBOL copybook files (shared data definitions)
+- `*.cbl` / `*.CBL` — 44 COBOL program source files
+- `*.cpy` / `*.CPY` — 84 copybook files (shared data definitions)
 
-Files are extracted by `scripts/setup.sh` and placed in `cobol/`.
+**Do not modify these files.** They are read-only reference material for the documentation pipeline.

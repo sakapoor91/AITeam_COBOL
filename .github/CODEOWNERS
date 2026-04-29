@@ -1,14 +1,8 @@
-# Default owners for everything
-* @scalefirstai/core-team
+# Default owner
+* @sakapoor91
 
-# Agent definitions require architect review
-.claude/agents/ @scalefirstai/architects
+# Agent definitions and pipeline rules
+.claude/ @sakapoor91
 
-# Generated Java requires witness review
-output/java/ @scalefirstai/witnesses
-
-# Dashboard changes
-dashboard/ @scalefirstai/frontend
-
-# Documentation
-docs/ @scalefirstai/docs
+# Documentation output
+output/ @sakapoor91

@@ -1,0 +1,40 @@
+name: Validate BIZ docs
+
+on:
+  push:
+    paths:
+      - 'output/business-docs/**/BIZ-*.md'
+  pull_request:
+    paths:
+      - 'output/business-docs/**/BIZ-*.md'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r output/business-docs/tools/requirements.txt
+
+      - name: Find changed BIZ docs
+        id: changed
+        run: |
+          git fetch origin ${{ github.base_ref || 'main' }} --depth=1 2>/dev/null || true
+          BASE=${GITHUB_BASE_REF:-main}
+          CHANGED=$(git diff --name-only origin/$BASE...HEAD 2>/dev/null | grep 'BIZ-.*\.md$' | sed 's|output/business-docs/||;s|/BIZ-.*||' | sort -u || true)
+          echo "programs=$CHANGED" >> $GITHUB_OUTPUT
+          echo "Changed programs: $CHANGED"
+
+      - name: Run Phase 1 validation on changed programs
+        run: |
+          FAILED=0
+          for PROG in ${{ steps.changed.outputs.programs }}; do
+            echo "── Validating $PROG ──"
+            python output/business-docs/tools/validate_doc.py "$PROG" || FAILED=1
+          done
+          exit $FAILED

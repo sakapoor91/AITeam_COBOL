@@ -38,8 +38,9 @@ source/aws-carddemo/
 coverage/
 *.lcov
 
-# Generated binary artifacts (regenerate with: python output/business-docs/tools/generate_all.py)
+# Generated binary artifacts
 output/business-docs/**/*-flow.png
+output/ir/
 ~$*
 
 # Python bytecode

@@ -20,9 +20,23 @@ Your output must be accurate enough that a Java developer can trust it instead o
 
 1. Read `output/business-docs/DOCUMENTATION-STANDARD.md` — this is the law. Every rule applies.
 2. Read the canonical example: `output/business-docs/CBACT01C/BIZ-CBACT01C.md` — match its depth and structure.
-3. Read the COBOL source: `source/cobol/PROGNAME.cbl` (try both `.cbl` and `.CBL`).
-4. Find every `COPY` statement in the source and read each `.cpy` / `.CPY` file from `source/cobol/`.
-   Search case-insensitively — e.g. `COPY CVACT01Y` → look for `CVACT01Y.cpy` or `CVACT01Y.CPY`.
+3. Run the IR extractor to get the structured ground truth:
+   ```bash
+   python output/business-docs/tools/cobol_ir.py PROGNAME
+   ```
+   Then read `output/ir/PROGNAME.json`. This JSON is the authoritative source for:
+   - **Paragraph names and line numbers** — use these exactly; do not guess
+   - **PERFORM graph** — use this for Section 2 flow
+   - **Data items** — PIC clauses, byte counts, COMP-3 flags
+   - **Copybook fields** — resolved inline, no need to hunt .cpy files manually
+   - **Unreferenced fields** — `unreferenced_fields` array goes directly into Migration Notes and Appendix B "(unused)" flags
+   - **COMP-3 fields** — `comp3_fields` array; every entry needs a BigDecimal migration note
+   - **88-level values** — `level_88_values` map; use for decode tables
+   - **External CALL targets** — `call_statements` array
+4. Read the COBOL source: `source/cobol/PROGNAME.cbl` (try both `.cbl` and `.CBL`).
+   Use the source for: DISPLAY string literals, hardcoded values, file-status handling logic,
+   and anything the IR does not capture (e.g. exact error messages, EVALUATE branches).
+5. Read each .cpy file only if a field in the IR needs deeper context (the IR already has all fields inline).
 
 ## Output location
 
